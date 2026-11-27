@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>개발자 도구 모음 - px rem 변환 색상 변환 JSON 포맷터</title>
+  <meta name="description" content="개발자를 위한 무료 온라인 도구 모음: px↔rem 단위 변환기, CSS 색상 변환기(HEX/RGB/HSL), JSON 포맷터, Base64 인코더/디코더를 한 곳에서 사용하세요." />
+  <meta name="keywords" content="px rem 변환, css 색상 변환기, json 포맷터, base64 인코더, 개발자 도구" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="개발자 도구 모음 - px rem 변환 색상 변환 JSON 포맷터" />
+  <meta property="og:description" content="개발자를 위한 무료 온라인 도구 모음: px↔rem 단위 변환기, CSS 색상 변환기, JSON 포맷터, Base64 인코더/디코더" />
+  <meta property="og:url" content="https://lowkey-devtools.com/" />
+  <meta property="og:site_name" content="개발자 도구 모음" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="개발자 도구 모음 - px rem 변환 색상 변환 JSON 포맷터" />
+  <meta name="twitter:description" content="개발자를 위한 무료 온라인 도구 모음" />
+  <link rel="canonical" href="https://lowkey-devtools.com/" />
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: {} }
+    }
+  </script>
+  <style>
+    body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; }
+    .tab-btn { border-bottom: 2px solid transparent; }
+    .tab-btn.active { border-bottom-color: #818cf8; color: #818cf8; }
+    html.light .tab-btn.active { border-bottom-color: #4f46e5; color: #4f46e5; }
+    textarea { resize: vertical; }
+    .json-key    { color: #89dceb; }
+    .json-str    { color: #a6e3a1; }
+    .json-num    { color: #fab387; }
+    .json-bool   { color: #cba6f7; }
+    .json-null   { color: #f38ba8; }
+    html.light .json-key   { color: #0369a1; }
+    html.light .json-str   { color: #15803d; }
+    html.light .json-num   { color: #c2410c; }
+    html.light .json-bool  { color: #7c3aed; }
+    html.light .json-null  { color: #dc2626; }
+    pre code { font-family: 'JetBrains Mono','Fira Code','Consolas',monospace; font-size:0.82rem; line-height:1.6; }
+    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    th,td { padding:0.4rem 0.75rem; border-bottom:1px solid #45475a; text-align:right; }
+    html.light th,html.light td { border-color:#e2e8f0; }
+    th { text-align:center; }
+    td:first-child { text-align:center; }
+    tr:hover td { background:rgba(129,140,248,0.06); }
+  </style>
+</head>
+<body class="min-h-screen bg-[#1e1e2e] text-[#cdd6f4] transition-colors duration-200">
+
+<!-- ADSENSE:header -->
+
+<div class="max-w-[600px] mx-auto px-3 pb-10">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 flex items-center justify-between py-3 mb-4 border-b border-[#45475a] bg-[#1e1e2e] html-light:bg-white">
+    <div>
+      <h1 class="font-bold text-base">🛠 개발자 도구 모음</h1>
+      <p class="text-xs text-[#6c7086]">px·rem 변환 · 색상 변환 · JSON · Base64</p>
+    </div>
+    <button id="themeToggle"
+      class="text-xs px-3 py-1.5 rounded-lg border border-[#45475a] text-[#94a3b8] hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">
+      <span id="themeIcon">☀️ 라이트</span>
+    </button>
+  </header>
+
+  <!-- Tab Nav -->
+  <nav class="flex border-b border-[#45475a] mb-5 overflow-x-auto sticky top-[52px] z-20 bg-[#1e1e2e]" role="tablist">
+    <button class="tab-btn active flex-shrink-0 px-3 py-2.5 text-sm font-medium text-[#94a3b8] whitespace-nowrap" data-tab="pxrem">px↔rem</button>
+    <button class="tab-btn flex-shrink-0 px-3 py-2.5 text-sm font-medium text-[#94a3b8] whitespace-nowrap" data-tab="color">🎨 색상 변환</button>
+    <button class="tab-btn flex-shrink-0 px-3 py-2.5 text-sm font-medium text-[#94a3b8] whitespace-nowrap" data-tab="json">{} JSON</button>
+    <button class="tab-btn flex-shrink-0 px-3 py-2.5 text-sm font-medium text-[#94a3b8] whitespace-nowrap" data-tab="base64">Base64</button>
+  </nav>
+
+  <!-- ══════ TAB 1: px ↔ rem ══════ -->
+  <section id="tab-pxrem" class="tab-panel">
+
+    <div class="rounded-xl border border-[#45475a] bg-[#313244] p-5 html-light:bg-white html-light:border-gray-200">
+      <h2 class="font-semibold text-sm mb-4">px ↔ rem 단위 변환기</h2>
+
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-[#94a3b8] mb-1" for="baseFontSize">기준 폰트 크기 (px)</label>
+        <input id="baseFontSize" type="number" value="16" min="1" max="100"
+          class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+        <p class="text-xs text-[#6c7086] mt-1">HTML :root font-size (기본 16px)</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="block text-xs font-semibold text-[#94a3b8] mb-1" for="pxInput">px 값 입력</label>
+          <input id="pxInput" type="number" placeholder="예: 24" step="any"
+            class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#94a3b8] mb-1" for="remInput">rem 값 입력</label>
+          <input id="remInput" type="number" placeholder="예: 1.5" step="any"
+            class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="rounded-lg border border-[#45475a] bg-[#181825] p-3">
+          <div class="text-xs text-[#6c7086] mb-1">px → rem 결과</div>
+          <div id="pxToRem" class="font-mono text-lg font-bold text-[#89dceb]">—</div>
+        </div>
+        <div class="rounded-lg border border-[#45475a] bg-[#181825] p-3">
+          <div class="text-xs text-[#6c7086] mb-1">rem → px 결과</div>
+          <div id="remToPx" class="font-mono text-lg font-bold text-[#a6e3a1]">—</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-[#94a3b8]">자주 쓰는 값 대조표</span>
+          <span class="text-xs text-[#6c7086]" id="tableBase">기준: 16px</span>
+        </div>
+        <div class="overflow-x-auto rounded-lg border border-[#45475a]">
+          <table>
+            <thead class="bg-[#181825]">
+              <tr>
+                <th class="text-[#6c7086] font-semibold py-2">px</th>
+                <th class="text-[#6c7086] font-semibold py-2">rem</th>
+              </tr>
+            </thead>
+            <tbody id="convTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════ TAB 2: Color ══════ -->
+  <section id="tab-color" class="tab-panel hidden">
+
+    <div class="rounded-xl border border-[#45475a] bg-[#313244] p-5">
+      <h2 class="font-semibold text-sm mb-4">CSS 색상 변환기 (HEX ↔ RGB ↔ HSL)</h2>
+
+      <div id="colorSwatch" class="w-full h-20 rounded-lg border border-white/10 mb-4 transition-all" style="background:#818cf8"></div>
+
+      <div id="colorError" class="hidden text-xs text-[#f38ba8] mb-3">올바른 HEX 색상을 입력하세요 (예: #ff6600)</div>
+
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="col-span-2">
+          <label class="block text-xs font-semibold text-[#94a3b8] mb-1" for="hexInput">HEX</label>
+          <input id="hexInput" type="text" value="#818cf8" maxlength="9"
+            class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] font-mono text-sm outline-none focus:border-[#818cf8]" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#94a3b8] mb-1">선택</label>
+          <input id="colorPicker" type="color" value="#818cf8"
+            class="w-full h-[38px] rounded-lg border border-[#45475a] cursor-pointer bg-[#181825]" />
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-[#45475a] bg-[#181825] p-3 mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-[#94a3b8]">RGB</span>
+          <button id="copyRgb" class="text-xs px-2 py-0.5 rounded border border-[#45475a] text-[#94a3b8] hover:border-[#818cf8] hover:text-[#c7d2fe]">복사</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <div>
+            <label class="block text-[0.7rem] text-[#6c7086] mb-0.5">R (0–255)</label>
+            <input id="rgbR" type="number" min="0" max="255" value="129"
+              class="w-full px-2 py-1.5 rounded border border-[#45475a] bg-[#1e1e2e] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+          </div>
+          <div>
+            <label class="block text-[0.7rem] text-[#6c7086] mb-0.5">G (0–255)</label>
+            <input id="rgbG" type="number" min="0" max="255" value="140"
+              class="w-full px-2 py-1.5 rounded border border-[#45475a] bg-[#1e1e2e] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+          </div>
+          <div>
+            <label class="block text-[0.7rem] text-[#6c7086] mb-0.5">B (0–255)</label>
+            <input id="rgbB" type="number" min="0" max="255" value="248"
+              class="w-full px-2 py-1.5 rounded border border-[#45475a] bg-[#1e1e2e] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+          </div>
+        </div>
+        <code id="rgbOutput" class="font-mono text-sm text-[#a6e3a1]">rgb(129, 140, 248)</code>
+      </div>
+
+      <div class="rounded-lg border border-[#45475a] bg-[#181825] p-3">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold text-[#94a3b8]">HSL</span>
+          <button id="copyHsl" class="text-xs px-2 py-0.5 rounded border border-[#45475a] text-[#94a3b8] hover:border-[#818cf8] hover:text-[#c7d2fe]">복사</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-2">
+          <div>
+            <label class="block text-[0.7rem] text-[#6c7086] mb-0.5">H (0–360)</label>
+            <input id="hslH" type="number" min="0" max="360" value="239"
+              class="w-full px-2 py-1.5 rounded border border-[#45475a] bg-[#1e1e2e] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+          </div>
+          <div>
+            <label class="block text-[0.7rem] text-[#6c7086] mb-0.5">S (0–100%)</label>
+            <input id="hslS" type="number" min="0" max="100" value="87"
+              class="w-full px-2 py-1.5 rounded border border-[#45475a] bg-[#1e1e2e] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+          </div>
+          <div>
+            <label class="block text-[0.7rem] text-[#6c7086] mb-0.5">L (0–100%)</label>
+            <input id="hslL" type="number" min="0" max="100" value="74"
+              class="w-full px-2 py-1.5 rounded border border-[#45475a] bg-[#1e1e2e] text-[#cdd6f4] text-sm outline-none focus:border-[#818cf8]" />
+          </div>
+        </div>
+        <code id="hslOutput" class="font-mono text-sm text-[#cba6f7]">hsl(239, 87%, 74%)</code>
+      </div>
+
+      <div class="mt-3 flex gap-2">
+        <button id="copyHex"
+          class="flex-1 py-2 rounded-lg border border-[#45475a] text-xs text-[#94a3b8] hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">HEX 복사</button>
+      </div>
+
+      <!-- ADSENSE:middle -->
+    </div>
+
+  </section>
+
+  <!-- ══════ TAB 3: JSON ══════ -->
+  <section id="tab-json" class="tab-panel hidden">
+
+    <div class="rounded-xl border border-[#45475a] bg-[#313244] p-5">
+      <h2 class="font-semibold text-sm mb-4">JSON 포맷터 &amp; 검증기</h2>
+
+      <div class="mb-3">
+        <label class="block text-xs font-semibold text-[#94a3b8] mb-1" for="jsonInput">JSON 입력 (Ctrl+Enter 포맷)</label>
+        <textarea id="jsonInput" rows="8" placeholder='{"name":"홍길동","age":30}'
+          class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] font-mono text-xs outline-none focus:border-[#818cf8]"></textarea>
+      </div>
+
+      <div id="jsonError" class="hidden text-xs text-[#f38ba8] mb-3"></div>
+
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button id="formatJson"
+          class="px-4 py-2 rounded-lg bg-[#818cf8] text-[#1e1e2e] text-sm font-semibold hover:bg-[#a5b4fc] transition-colors">▶ 포맷하기</button>
+        <button id="minifyJson"
+          class="px-4 py-2 rounded-lg border border-[#45475a] text-[#94a3b8] text-sm hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">압축하기</button>
+        <button id="clearJson"
+          class="px-4 py-2 rounded-lg border border-[#45475a] text-[#94a3b8] text-sm hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">지우기</button>
+        <button id="copyJson"
+          class="px-4 py-2 rounded-lg border border-[#45475a] text-[#94a3b8] text-sm hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">복사</button>
+      </div>
+
+      <div id="jsonOutputWrap" class="hidden">
+        <label class="block text-xs font-semibold text-[#94a3b8] mb-1">결과</label>
+        <pre class="rounded-lg border border-[#45475a] bg-[#181825] p-3 overflow-x-auto min-h-[80px]"><code id="jsonCode" class="text-xs"></code></pre>
+        <div id="jsonStats" class="text-xs text-[#6c7086] mt-1"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════ TAB 4: Base64 ══════ -->
+  <section id="tab-base64" class="tab-panel hidden">
+
+    <div class="rounded-xl border border-[#45475a] bg-[#313244] p-5">
+      <h2 class="font-semibold text-sm mb-4">Base64 인코더 / 디코더</h2>
+
+      <div class="mb-3">
+        <label class="block text-xs font-semibold text-[#94a3b8] mb-1" for="b64Input">텍스트 입력</label>
+        <textarea id="b64Input" rows="5" placeholder="인코딩 또는 디코딩할 텍스트를 입력하세요"
+          class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] font-mono text-xs outline-none focus:border-[#818cf8]"></textarea>
+      </div>
+
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button id="encodeB64"
+          class="px-4 py-2 rounded-lg bg-[#818cf8] text-[#1e1e2e] text-sm font-semibold hover:bg-[#a5b4fc] transition-colors">▶ 인코딩</button>
+        <button id="decodeB64"
+          class="px-4 py-2 rounded-lg border border-[#45475a] text-[#94a3b8] text-sm hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">◀ 디코딩</button>
+        <button id="clearB64"
+          class="px-4 py-2 rounded-lg border border-[#45475a] text-[#94a3b8] text-sm hover:border-[#818cf8] hover:text-[#c7d2fe] transition-colors">지우기</button>
+      </div>
+
+      <div id="b64Error" class="hidden text-xs text-[#f38ba8] mb-3"></div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-xs font-semibold text-[#94a3b8]" for="b64Output">결과</label>
+          <button id="copyB64" class="text-xs px-2 py-0.5 rounded border border-[#45475a] text-[#94a3b8] hover:border-[#818cf8] hover:text-[#c7d2fe]">복사</button>
+        </div>
+        <textarea id="b64Output" rows="5" readonly placeholder="결과가 여기에 표시됩니다"
+          class="w-full px-3 py-2 rounded-lg border border-[#45475a] bg-[#181825] text-[#cdd6f4] font-mono text-xs outline-none"></textarea>
+        <div id="b64Stats" class="text-xs text-[#6c7086] mt-1"></div>
+      </div>
+
+      <div class="mt-4 rounded-lg bg-[#181825] border border-[#45475a] p-3 text-xs text-[#6c7086]">
+        <p class="font-semibold text-[#94a3b8] mb-1">사용 안내</p>
+        <ul class="space-y-0.5 list-disc list-inside">
+          <li>인코딩: 일반 텍스트 → Base64 문자열로 변환</li>
+          <li>디코딩: Base64 문자열 → 원본 텍스트로 복원</li>
+          <li>한글, 이모지 등 UTF-8 문자를 지원합니다</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-8 text-center text-xs text-[#6c7086] space-y-1">
+    <p>개발자 도구 모음 &copy; 2024 — 모든 처리는 브라우저에서만 이루어집니다</p>
+    <a href="privacy.html" class="underline hover:text-[#818cf8]">개인정보 처리방침</a>
+  </footer>
+
+</div>
+
+<!-- ADSENSE:bottom -->
+
+<script>
+// ─── Theme ───────────────────────────────────────────────────────
+const html = document.documentElement;
+let isDark = true;
+
+function setTheme(dark) {
+  isDark = dark;
+  html.classList.toggle('dark', dark);
+  html.classList.toggle('light', !dark);
+  document.getElementById('themeIcon').textContent = dark ? '☀️ 라이트' : '🌙 다크';
+  if (dark) {
+    document.body.classList.replace('bg-white', 'bg-[#1e1e2e]') || true;
+    document.body.style.background = '#1e1e2e';
+    document.body.style.color = '#cdd6f4';
+  } else {
+    document.body.style.background = '#f1f5f9';
+    document.body.style.color = '#1e293b';
+  }
+  localStorage.setItem('devtools-theme', dark ? 'dark' : 'light');
+}
+const savedTheme = localStorage.getItem('devtools-theme');
+setTheme(savedTheme ? savedTheme === 'dark' : true);
+document.getElementById('themeToggle').addEventListener('click', () => setTheme(!isDark));
+
+// ─── Tabs ─────────────────────────────────────────────────────────
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+function activateTab(id) {
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  tabPanels.forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + id));
+  localStorage.setItem('devtools-tab', id);
+}
+tabBtns.forEach(b => b.addEventListener('click', () => activateTab(b.dataset.tab)));
+activateTab(localStorage.getItem('devtools-tab') || 'pxrem');
+
+// ─── Copy helper ─────────────────────────────────────────────────
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ 복사됨';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }).catch(() => {});
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TOOL 1: px ↔ rem
+// ═══════════════════════════════════════════════════════════════════
+const COMMON_PX = [4, 8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96, 112, 128];
+
+function getBase() { return Math.max(1, parseFloat(document.getElementById('baseFontSize').value) || 16); }
+function round4(n) { return +n.toFixed(4); }
+
+function buildTable() {
+  const base = getBase();
+  document.getElementById('tableBase').textContent = '기준: ' + base + 'px';
+  document.getElementById('convTableBody').innerHTML = COMMON_PX.map(px =>
+    `<tr><td>${px}px</td><td>${round4(px / base)}rem</td></tr>`
+  ).join('');
+}
+
+function updatePxRem() {
+  const base = getBase();
+  const px = parseFloat(document.getElementById('pxInput').value);
+  const rem = parseFloat(document.getElementById('remInput').value);
+  document.getElementById('pxToRem').textContent = isNaN(px) ? '—' : round4(px / base) + 'rem';
+  document.getElementById('remToPx').textContent = isNaN(rem) ? '—' : round4(rem * base) + 'px';
+  buildTable();
+}
+
+['baseFontSize','pxInput','remInput'].forEach(id =>
+  document.getElementById(id).addEventListener('input', updatePxRem)
+);
+buildTable();
+
+// ═══════════════════════════════════════════════════════════════════
+// TOOL 2: Color Converter
+// ═══════════════════════════════════════════════════════════════════
+function hexToRgb(hex) {
+  hex = hex.replace(/^#/, '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
+  const n = parseInt(hex, 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(v => Math.min(255, Math.max(0, v)).toString(16).padStart(2, '0')).join('');
+}
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => { const k = (n + h / 30) % 12; return l - a * Math.max(-1, Math.min(k - 3, Math.min(9 - k, 1))); };
+  return { r: Math.round(f(0) * 255), g: Math.round(f(8) * 255), b: Math.round(f(4) * 255) };
+}
+
+let colorUpdating = false;
+function applyColor(hex, source) {
+  if (colorUpdating) return;
+  colorUpdating = true;
+  const rgb = hexToRgb(hex);
+  if (!rgb) {
+    document.getElementById('colorError').classList.remove('hidden');
+    colorUpdating = false;
+    return;
+  }
+  document.getElementById('colorError').classList.add('hidden');
+  const { r, g, b } = rgb;
+  const hsl = rgbToHsl(r, g, b);
+  const full = hex.startsWith('#') ? hex : '#' + hex;
+  document.getElementById('colorSwatch').style.background = full;
+  if (source !== 'hex') document.getElementById('hexInput').value = full;
+  if (source !== 'picker') { try { document.getElementById('colorPicker').value = full; } catch(e) {} }
+  if (source !== 'rgb') {
+    document.getElementById('rgbR').value = r;
+    document.getElementById('rgbG').value = g;
+    document.getElementById('rgbB').value = b;
+  }
+  if (source !== 'hsl') {
+    document.getElementById('hslH').value = hsl.h;
+    document.getElementById('hslS').value = hsl.s;
+    document.getElementById('hslL').value = hsl.l;
+  }
+  document.getElementById('rgbOutput').textContent = `rgb(${r}, ${g}, ${b})`;
+  document.getElementById('hslOutput').textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+  colorUpdating = false;
+}
+
+document.getElementById('hexInput').addEventListener('input', e => applyColor(e.target.value, 'hex'));
+document.getElementById('colorPicker').addEventListener('input', e => { document.getElementById('hexInput').value = e.target.value; applyColor(e.target.value, 'picker'); });
+['rgbR','rgbG','rgbB'].forEach(id => document.getElementById(id).addEventListener('input', () => {
+  const r = +document.getElementById('rgbR').value, g = +document.getElementById('rgbG').value, b = +document.getElementById('rgbB').value;
+  applyColor(rgbToHex(r, g, b), 'rgb');
+}));
+['hslH','hslS','hslL'].forEach(id => document.getElementById(id).addEventListener('input', () => {
+  const h = +document.getElementById('hslH').value, s = +document.getElementById('hslS').value, l = +document.getElementById('hslL').value;
+  const { r, g, b } = hslToRgb(h, s, l);
+  applyColor(rgbToHex(r, g, b), 'hsl');
+}));
+document.getElementById('copyHex').addEventListener('click', e => copyText(document.getElementById('hexInput').value, e.target));
+document.getElementById('copyRgb').addEventListener('click', e => copyText(document.getElementById('rgbOutput').textContent, e.target));
+document.getElementById('copyHsl').addEventListener('click', e => copyText(document.getElementById('hslOutput').textContent, e.target));
+
+// ═══════════════════════════════════════════════════════════════════
+// TOOL 3: JSON Formatter
+// ═══════════════════════════════════════════════════════════════════
+function syntaxHL(json) {
+  return json
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g,
+      m => {
+        let c = 'json-num';
+        if (/^"/.test(m)) c = /:$/.test(m) ? 'json-key' : 'json-str';
+        else if (/true|false/.test(m)) c = 'json-bool';
+        else if (/null/.test(m)) c = 'json-null';
+        return `<span class="${c}">${m}</span>`;
+      }
+    );
+}
+
+function runFormat(minify) {
+  const raw = document.getElementById('jsonInput').value.trim();
+  const errEl = document.getElementById('jsonError');
+  const outWrap = document.getElementById('jsonOutputWrap');
+  if (!raw) { errEl.classList.add('hidden'); outWrap.classList.add('hidden'); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    const result = minify ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2);
+    document.getElementById('jsonCode').innerHTML = syntaxHL(result);
+    outWrap.classList.remove('hidden');
+    errEl.classList.add('hidden');
+    document.getElementById('jsonStats').textContent =
+      `${result.split('\n').length}줄 · ${new Blob([result]).size} bytes` + (minify ? ' (압축됨)' : '');
+  } catch (e) {
+    errEl.textContent = '⚠ JSON 파싱 오류: ' + e.message;
+    errEl.classList.remove('hidden');
+    outWrap.classList.add('hidden');
+  }
+}
+
+document.getElementById('formatJson').addEventListener('click', () => runFormat(false));
+document.getElementById('minifyJson').addEventListener('click', () => runFormat(true));
+document.getElementById('clearJson').addEventListener('click', () => {
+  document.getElementById('jsonInput').value = '';
+  document.getElementById('jsonError').classList.add('hidden');
+  document.getElementById('jsonOutputWrap').classList.add('hidden');
+});
+document.getElementById('copyJson').addEventListener('click', e => {
+  const t = document.getElementById('jsonCode').textContent;
+  if (t) copyText(t, e.target);
+});
+document.getElementById('jsonInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runFormat(false); }
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// TOOL 4: Base64
+// ═══════════════════════════════════════════════════════════════════
+function encodeB64() {
+  const txt = document.getElementById('b64Input').value;
+  document.getElementById('b64Error').classList.add('hidden');
+  if (!txt) { document.getElementById('b64Output').value = ''; document.getElementById('b64Stats').textContent = ''; return; }
+  try {
+    const enc = btoa(unescape(encodeURIComponent(txt)));
+    document.getElementById('b64Output').value = enc;
+    document.getElementById('b64Stats').textContent = `입력 ${txt.length}자 → 출력 ${enc.length}자`;
+  } catch (e) {
+    document.getElementById('b64Error').textContent = '⚠ 인코딩 오류: ' + e.message;
+    document.getElementById('b64Error').classList.remove('hidden');
+  }
+}
+function decodeB64() {
+  const txt = document.getElementById('b64Input').value.trim();
+  document.getElementById('b64Error').classList.add('hidden');
+  if (!txt) { document.getElementById('b64Output').value = ''; document.getElementById('b64Stats').textContent = ''; return; }
+  try {
+    const dec = decodeURIComponent(escape(atob(txt)));
+    document.getElementById('b64Output').value = dec;
+    document.getElementById('b64Stats').textContent = `입력 ${txt.length}자 → 출력 ${dec.length}자`;
+  } catch (e) {
+    document.getElementById('b64Error').textContent = '⚠ 디코딩 오류: 올바른 Base64 문자열이 아닙니다';
+    document.getElementById('b64Error').classList.remove('hidden');
+  }
+}
+document.getElementById('encodeB64').addEventListener('click', encodeB64);
+document.getElementById('decodeB64').addEventListener('click', decodeB64);
+document.getElementById('clearB64').addEventListener('click', () => {
+  document.getElementById('b64Input').value = '';
+  document.getElementById('b64Output').value = '';
+  document.getElementById('b64Error').classList.add('hidden');
+  document.getElementById('b64Stats').textContent = '';
+});
+document.getElementById('copyB64').addEventListener('click', e => {
+  const t = document.getElementById('b64Output').value;
+  if (t) copyText(t, e.target);
+});
+</script>
+</body>
+</html>
